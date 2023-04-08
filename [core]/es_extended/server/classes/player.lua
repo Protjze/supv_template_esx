@@ -4,7 +4,7 @@ local DoesEntityExist = DoesEntityExist
 local GetEntityCoords = GetEntityCoords
 local GetEntityHeading = GetEntityHeading
 
-function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, weight, job, loadout, name, coords, metadata)
+function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, weight, job, loadout, name, coords, metadata, faction)
 	local targetOverrides = Config.PlayerFunctionOverride and Core.PlayerFunctionOverrides[Config.PlayerFunctionOverride] or {}
 	
 	local self = {}
@@ -34,6 +34,51 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
 	stateBag:set("group", self.group, true)
 	stateBag:set("name", self.name, true)
 	stateBag:set("metadata", self.metadata, true)
+
+	if Config.DoubleJob.enable then
+		self[Config.DoubleJob.name] = faction
+		stateBag:set(Config.DoubleJob.name, self[Config.DoubleJob.name], true)
+
+		self[Config.DoubleJob.get] = function()
+			return self[Config.DoubleJob.name]
+		end
+
+		self[Config.DoubleJob.set] = function(faction, grade)
+			grade = tostring(grade)
+			local lastFaction = json.decode(json.encode(self[Config.DoubleJob.name]))
+
+			if ESX[Config.DoubleJob.does](faction, grade) then
+				local factionObject, gradeObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table].grades[grade]
+
+				self[Config.DoubleJob.name].id = factionObject.id
+				self[Config.DoubleJob.name].name = factionObject.name
+				self[Config.DoubleJob.name].label = factionObject.label
+
+				self[Config.DoubleJob.name].grade = tonumber(grade)
+				self[Config.DoubleJob.name].grade_name = gradeObject.name
+				self[Config.DoubleJob.name].grade_label = gradeObject.label
+				self[Config.DoubleJob.name].grade_salary = gradeObject.salary
+
+				if gradeObject.skin_male then
+					self[Config.DoubleJob.name].skin_male = json.decode(gradeObject.skin_male)
+				else
+					self[Config.DoubleJob.name].skin_male = {}
+				end
+
+				if gradeObject.skin_female then
+					self[Config.DoubleJob.name].skin_female = json.decode(gradeObject.skin_female)
+				else
+					self[Config.DoubleJob.name].skin_female = {}
+				end
+
+				TriggerEvent(Config.DoubleJob.event, self.source, self[Config.DoubleJob.name], lastFaction)
+				self.triggerEvent(Config.DoubleJob.event, self[Config.DoubleJob.name], lastFaction)
+				Player(self.source).state:set(Config.DoubleJob.name, self[Config.DoubleJob.name], true)
+			else
+				print(('[es_extended] [^3WARNING^7] Ignoring invalid ^5.%s()^7 usage for ID: ^5%s^7, Job: ^5%s^7'):format(Config.DoubleJob.set, self.source, faction))
+			end
+		end
+	end
 
 	function self.triggerEvent(eventName, ...)
 		TriggerClientEvent(eventName, self.source, ...)

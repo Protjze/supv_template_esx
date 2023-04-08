@@ -143,89 +143,223 @@ function ESX.RegisterCommand(name, group, cb, allowConsole, suggestion)
   end
 end
 
-function Core.SavePlayer(xPlayer, cb)
-  local parameters <const> = {
-    json.encode(xPlayer.getAccounts(true)),
-    xPlayer.job.name,
-    xPlayer.job.grade,
-    xPlayer.group,
-    json.encode(xPlayer.getCoords()),
-    json.encode(xPlayer.getInventory(true)), 
-    json.encode(xPlayer.getLoadout(true)),
-    json.encode(xPlayer.getMeta()),
-    xPlayer.identifier
-  }
+if Config.DoubleJob.enable then
+  ESX[Config.DoubleJob.getTable] = function()
+    return ESX[Config.DoubleJob.table]
+  end
 
-  MySQL.prepare(
-    'UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?',
-    parameters,
-    function(affectedRows)
-      if affectedRows == 1 then
-        print(('[^2INFO^7] Saved player ^5"%s^7"'):format(xPlayer.name))
-        TriggerEvent('esx:playerSaved', xPlayer.playerId, xPlayer)
-      end
-      if cb then
-        cb()
+  ESX[Config.DoubleJob.refresh] = function()
+    local Factions = {}
+    local factions = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list))
+
+    for _,v in ipairs(factions) do
+      Faction[v.name] = v
+      Factions[v.name].grades = {}
+    end
+
+    local factionGrades = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list_grade))
+
+    for _,v in ipairs(factionGrades) do
+      if Factions[v[Config.DoubleJob.database.users_dj_name]] then
+        Factions[v[Config.DoubleJob.database.users_dj_name]].grades[tostring(v.grade)] = v
+      else
+        print(('[^3WARNING^7] Ignoring %s grades for ^5"%s"^0 due to missing %s'):format(Config.DoubleJob.name, v[Config.DoubleJob.database.users_dj_name], Config.DoubleJob.name))
       end
     end
-  )
-end
 
-function Core.SavePlayers(cb)
-  local xPlayers <const> = ESX.Players
-  if not next(xPlayers) then
-    return
+    for _,v in pairs(Factions) do
+      if ESX.Table.SizeOf(v.grades) == 0 then
+        Factions[v.name] = nil
+        print(('[^3WARNING^7] Ignoring %s ^5"%s"^0 due to no %s grades found'):format(Config.DoubleJob.name, v.name, Config.DoubleJob.name))
+      end
+    end
+
+    if not Factions then
+      ESX[Config.DoubleJob.table][Config.DoubleJob.default.list.name] = {
+        label = Config.DoubleJob.default.list.label,
+        grades = {
+          ['0'] = {grade = 0, label = Config.DoubleJob.default.list_grade.label, salary = 0, skin_male = {}, skin_female = {}}
+        }
+      }
+    else
+      ESX[Config.DoubleJob.table] = Factions
+    end
+  end
+
+  function Core.SavePlayer(xPlayer, cb)
+    local parameters <const> = {
+      json.encode(xPlayer.getAccounts(true)),
+      xPlayer.job.name,
+      xPlayer.job.grade,
+      xPlayer[Config.DoubleJob.name].name,
+      xPlayer[Config.DoubleJob.name].grade,
+      xPlayer.group,
+      json.encode(xPlayer.getCoords()),
+      json.encode(xPlayer.getInventory(true)), 
+      json.encode(xPlayer.getLoadout(true)),
+      json.encode(xPlayer.getMeta()),
+      xPlayer.identifier
+    }
+  
+    local query = ("'UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `%s` = ?, `%s` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?'"):format(Config.DoubleJob.database.users_dj_name, Config.DoubleJob.database.users_dj_grade)
+
+    MySQL.prepare(
+      query,
+      parameters,
+      function(affectedRows)
+        if affectedRows == 1 then
+          print(('[^2INFO^7] Saved player ^5"%s^7"'):format(xPlayer.name))
+          TriggerEvent('esx:playerSaved', xPlayer.playerId, xPlayer)
+        end
+        if cb then
+          cb()
+        end
+      end
+    )
   end
   
-  local startTime <const> = os.time()
-  local parameters = {}
+  function Core.SavePlayers(cb)
+    local xPlayers <const> = ESX.Players
+    if not next(xPlayers) then
+      return
+    end
+    
+    local startTime <const> = os.time()
+    local parameters = {}
+  
+    for _, xPlayer in pairs(ESX.Players) do
+      parameters[#parameters + 1] = {
+        json.encode(xPlayer.getAccounts(true)),
+        xPlayer.job.name,
+        xPlayer.job.grade,
+        xPlayer[Config.DoubleJob.name].name,
+        xPlayer[Config.DoubleJob.name].grade,
+        xPlayer.group,
+        json.encode(xPlayer.getCoords()),
+        json.encode(xPlayer.getInventory(true)),
+        json.encode(xPlayer.getLoadout(true)),
+        json.encode(xPlayer.getMeta()),
+        xPlayer.identifier
+      }
+    end
+  
+    local query = ("UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `%s` = ?, `%s` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?"):format(Config.DoubleJob.database.users_dj_name, Config.DoubleJob.database.users_dj_grade)
 
-  for _, xPlayer in pairs(ESX.Players) do
-    parameters[#parameters + 1] = {
+    MySQL.prepare(
+      query,
+      parameters, 
+      function(results)
+        if not results then
+          return
+        end
+  
+        if type(cb) == 'function' then
+          return cb()
+        end
+        
+        print(('[^2INFO^7] Saved ^5%s^7 %s over ^5%s^7 ms'):format(#parameters, #parameters > 1 and 'players' or 'player', ESX.Math.Round((os.time() - startTime) / 1000000, 2)))
+      end
+    )
+  end
+  
+  function ESX.GetExtendedPlayers(key, val)
+    local xPlayers = {}
+    for k, v in pairs(ESX.Players) do
+      if key then
+        if (key == 'job' and v.job.name == val) or (key == Config.DoubleJob.name and v[Config.DoubleJob.name].name == val) or v[key] == val then
+          xPlayers[#xPlayers + 1] = v
+        end
+      else
+        xPlayers[#xPlayers + 1] = v
+      end
+    end
+    return xPlayers
+  end
+else
+  function Core.SavePlayer(xPlayer, cb)
+    local parameters <const> = {
       json.encode(xPlayer.getAccounts(true)),
       xPlayer.job.name,
       xPlayer.job.grade,
       xPlayer.group,
       json.encode(xPlayer.getCoords()),
-      json.encode(xPlayer.getInventory(true)),
+      json.encode(xPlayer.getInventory(true)), 
       json.encode(xPlayer.getLoadout(true)),
       json.encode(xPlayer.getMeta()),
       xPlayer.identifier
     }
+  
+    MySQL.prepare(
+      'UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?',
+      parameters,
+      function(affectedRows)
+        if affectedRows == 1 then
+          print(('[^2INFO^7] Saved player ^5"%s^7"'):format(xPlayer.name))
+          TriggerEvent('esx:playerSaved', xPlayer.playerId, xPlayer)
+        end
+        if cb then
+          cb()
+        end
+      end
+    )
   end
-
-  MySQL.prepare(
-    "UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?",
-    parameters, 
-    function(results)
-      if not results then
-        return
-      end
-
-      if type(cb) == 'function' then
-        return cb()
-      end
-      
-      print(('[^2INFO^7] Saved ^5%s^7 %s over ^5%s^7 ms'):format(#parameters, #parameters > 1 and 'players' or 'player', ESX.Math.Round((os.time() - startTime) / 1000000, 2)))
+  
+  function Core.SavePlayers(cb)
+    local xPlayers <const> = ESX.Players
+    if not next(xPlayers) then
+      return
     end
-  )
+    
+    local startTime <const> = os.time()
+    local parameters = {}
+  
+    for _, xPlayer in pairs(ESX.Players) do
+      parameters[#parameters + 1] = {
+        json.encode(xPlayer.getAccounts(true)),
+        xPlayer.job.name,
+        xPlayer.job.grade,
+        xPlayer.group,
+        json.encode(xPlayer.getCoords()),
+        json.encode(xPlayer.getInventory(true)),
+        json.encode(xPlayer.getLoadout(true)),
+        json.encode(xPlayer.getMeta()),
+        xPlayer.identifier
+      }
+    end
+  
+    MySQL.prepare(
+      "UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?",
+      parameters, 
+      function(results)
+        if not results then
+          return
+        end
+  
+        if type(cb) == 'function' then
+          return cb()
+        end
+        
+        print(('[^2INFO^7] Saved ^5%s^7 %s over ^5%s^7 ms'):format(#parameters, #parameters > 1 and 'players' or 'player', ESX.Math.Round((os.time() - startTime) / 1000000, 2)))
+      end
+    )
+  end
+  
+  function ESX.GetExtendedPlayers(key, val)
+    local xPlayers = {}
+    for k, v in pairs(ESX.Players) do
+      if key then
+        if (key == 'job' and v.job.name == val) or v[key] == val then
+          xPlayers[#xPlayers + 1] = v
+        end
+      else
+        xPlayers[#xPlayers + 1] = v
+      end
+    end
+    return xPlayers
+  end
 end
 
 ESX.GetPlayers = GetPlayers
-
-function ESX.GetExtendedPlayers(key, val)
-  local xPlayers = {}
-  for k, v in pairs(ESX.Players) do
-    if key then
-      if (key == 'job' and v.job.name == val) or v[key] == val then
-        xPlayers[#xPlayers + 1] = v
-      end
-    else
-      xPlayers[#xPlayers + 1] = v
-    end
-  end
-  return xPlayers
-end
 
 function ESX.GetPlayerFromId(source)
   return ESX.Players[tonumber(source)]
@@ -398,50 +532,6 @@ end
 
 function ESX.GetJobs()
   return ESX.Jobs
-end
-
-if Config.DoubleJob.enable then
-  ESX[Config.DoubleJob.getTable] = function()
-    return ESX[Config.DoubleJob.table]
-  end
-
-  ESX[Config.DoubleJob.refresh] = function()
-    local Factions = {}
-    local factions = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list))
-
-    for _,v in ipairs(factions) do
-      Faction[v.name] = v
-      Factions[v.name].grades = {}
-    end
-
-    local factionGrades = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list_grade))
-
-    for _,v in ipairs(factionGrades) do
-      if Factions[v[Config.DoubleJob.database.users_dj_name]] then
-        Factions[v[Config.DoubleJob.database.users_dj_name]].grades[tostring(v.grade)] = v
-      else
-        print(('[^3WARNING^7] Ignoring %s grades for ^5"%s"^0 due to missing %s'):format(Config.DoubleJob.name, v[Config.DoubleJob.database.users_dj_name], Config.DoubleJob.name))
-      end
-    end
-
-    for _,v in pairs(Factions) do
-      if ESX.Table.SizeOf(v.grades) == 0 then
-        Factions[v.name] = nil
-        print(('[^3WARNING^7] Ignoring %s ^5"%s"^0 due to no %s grades found'):format(Config.DoubleJob.name, v.name, Config.DoubleJob.name))
-      end
-    end
-
-    if not Factions then
-      ESX[Config.DoubleJob.table][Config.DoubleJob.default.list.name] = {
-        label = Config.DoubleJob.default.list.label,
-        grades = {
-          ['0'] = {grade = 0, label = Config.DoubleJob.default.list_grade.label, salary = 0, skin_male = {}, skin_female = {}}
-        }
-      }
-    else
-      ESX[Config.DoubleJob.table] = Factions
-    end
-  end
 end
 
 function ESX.GetUsableItems()

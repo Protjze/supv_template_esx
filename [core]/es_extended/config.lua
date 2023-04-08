@@ -18,6 +18,7 @@ Config.Accounts = {
 
 Config.DoubleJob = { -- default name is faction, but you have example for job2
 	enable = true, -- if you want doublejob
+	label = "Faction",
 	table = "Factions", -- Jobs2
 	getTable = "GetFactions", -- GetJobs2
 	name = 'faction', -- job2
@@ -30,7 +31,8 @@ Config.DoubleJob = { -- default name is faction, but you have example for job2
 	database = {
 		list = 'factions', -- jobs2
 		list_grade = 'faction_grades', -- job2_grades
-		users_dj_name = 'faction_name', -- job2_name
+		list_grade_name = 'faction_name', -- job2_name
+		users_dj_name = 'faction', -- job2
 		users_dj_grade = 'faction_grade' -- job2_grade
 	},
 	default = {
@@ -43,6 +45,19 @@ Config.DoubleJob = { -- default name is faction, but you have example for job2
 			label = "Sans faction",
 			grade = 0
 		}
+	},
+	command =  {
+		name = 'setfaction',
+		group = 'admin',
+		translate = {
+			'Commande setfactopn invalide',
+			'Assignez une faction au joueur',
+			'Nom de la faction',
+			'Numéro du grade'
+		}
+	},
+	translate = {
+		'Vous avez joué un event sans autorisation (tricheur)'
 	}
 }
 

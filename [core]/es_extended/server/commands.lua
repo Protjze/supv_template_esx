@@ -23,6 +23,25 @@ end, true, {help = TranslateCap('command_setjob'), validate = true, arguments = 
 	{name = 'grade', help = TranslateCap('command_setjob_grade'), type = 'number'}
 }})
 
+if Config.DoubleJob.enable then
+	ESX.RegisterCommand(Config.DoubleJob.command.name, Config.DoubleJob.command.group, function(xPlayer, args, showError)
+		if ESX[Config.DoubleJob.does](args[Config.DoubleJob.name], args.grade) then
+			args.playerId[Config.DoubleJob.set](args[Config.DoubleJob.name], args.grade)
+		else
+			showError(Config.DoubleJob.command.translate[1])
+		end
+		ESX.DiscordLogFields("UserActions", ("/%s Triggered"):format(Config.DoubleJob.commande.name), "pink", {
+			{name = "Player", value = xPlayer.name, inline = true},
+			{name = ("%s"):format(Config.DoubleJob.label), value = args[Config.DoubleJob.name], inline = true},
+			{name = "Grade", value = args.grade, inline = true}
+		})
+	end, true, {help = Config.DoubleJob.command.translate[2], validate = true, arguments = {
+		{name = 'playerId', help = TranslateCap('commandgeneric_playerid'), type = 'player'},
+		{name = ("%s"):format(Config.DoubleJob.name), help = Config.DoubleJob.command.translate[3], type = 'string'},
+		{name = 'grade', help = Config.DoubleJob.command.translate[4], type = 'number'}
+	}})
+end
+
 local upgrades = Config.SpawnVehMaxUpgrades and
     {
         plate = "ADMINCAR",

@@ -1,8 +1,8 @@
 ESX = {}
 ESX.Players = {}
 ESX.Jobs = {}
-ESX[Config.DoubleJob.table] = {}
 ESX.Items = {}
+ESX[Config.DoubleJob.table] = Config.DoubleJob.enable and {} or nil
 Core = {}
 Core.UsableItemsCallbacks = {}
 Core.RegisteredCommands = {}
@@ -112,7 +112,7 @@ MySQL.ready(function()
           `skin_male` longtext NOT NULL DEFAULT '{}',
           `skin_female` longtext NOT NULL DEFAULT '{}',
           PRIMARY KEY (`id`) USING BTREE
-        )]]):format(Config.DoubleJob.database.list_grade, Config.DoubleJob.database.users_dj_name),
+        )]]):format(Config.DoubleJob.database.list_grade, Config.DoubleJob.database.list_grade_name),
       } -- faction_grades
     }
   

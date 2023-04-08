@@ -5,7 +5,13 @@ local ReallyNewPlayer = {}
 
 local oneSyncState = GetConvar('onesync', 'off')
 local newPlayer = 'INSERT INTO `users` SET `accounts` = ?, `identifier` = ?, `group` = ?'
-local loadPlayer = 'SELECT `accounts`, `job`, `job_grade`, `group`, `position`, `inventory`, `skin`, `loadout`, `metadata`'
+local loadPlayer
+
+if Config.DoubleJob.enable then
+  loadPlayer = ('SELECT `accounts`, `job`, `job_grade`, `%s`, `%s`, `group`, `position`, `inventory`, `skin`, `loadout`, `metadata`'):format(Config.DoubleJob.database.users_dj_name, Config.DoubleJob.database.users_dj_grade)
+else
+  loadPlayer = 'SELECT `accounts`, `job`, `job_grade`, `group`, `position`, `inventory`, `skin`, `loadout`, `metadata`'
+end
 
 if Config.Multichar then
   newPlayer = newPlayer .. ', `firstname` = ?, `lastname` = ?, `dateofbirth` = ?, `sex` = ?, `height` = ?'
@@ -153,6 +159,41 @@ function loadESXPlayer(identifier, playerId, isNew)
     }
   end
 
+  -- DoubleJob
+  if Config.DoubleJob.enable then
+    userData[Config.DoubleJob.name] = {}
+    local faction, factionGrade, factionObject, gradefObject = result[Config.DoubleJob.database.users_dj_name], tostring(result[Config.DoubleJob.database.users_dj_grade])
+
+    if ESX[Config.DoubleJob.does](faction, factionGrade) then
+      factionObject, gradefObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table][faction].grades[factionGrade]
+    else
+      print(('[^3WARNING^7] Ignoring invalid %s for ^5%s^7 [%s: ^5%s^7, grade: ^5%s^7]'):format(Config.DoubleJob.name, identifier, Config.DoubleJob.name, faction, factionGrade))
+
+      faction, factionGrade = Config.DoubleJob.default.list.name, '0'
+      factionObject, gradefObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table][faction].grades[factionGrade]
+    end
+
+    userData[Config.DoubleJob.name].id = factionObject.id
+    userData[Config.DoubleJob.name].name = factionObject.name
+    userData[Config.DoubleJob.name].label = factionObject.label
+
+    userData[Config.DoubleJob.name].grade = tonumber(factionGrade)
+    userData[Config.DoubleJob.name].grade_name = gradefObject.name
+    userData[Config.DoubleJob.name].grade_label = gradefObject.label
+    userData[Config.DoubleJob.name].grade_salary = gradefObject.salary
+
+    userData[Config.DoubleJob.name].skin_male = {}
+    userData[Config.DoubleJob.name].skin_female = {}
+    
+    if gradefObject.skin_male then
+      userData[Config.DoubleJob.name].skin_male = json.decode(gradefObject.skin_male)
+    end
+
+    if gradefObject.skin_female then
+      userData[Config.DoubleJob.name].skin_female = json.decode(gradefObject.skin_female)
+    end
+  end
+
   -- Job
   if ESX.DoesJobExist(job, grade) then
     jobObject, gradeObject = ESX.Jobs[job], ESX.Jobs[job].grades[grade]
@@ -290,7 +331,7 @@ function loadESXPlayer(identifier, playerId, isNew)
   end
 
   local xPlayer = CreateExtendedPlayer(playerId, identifier, userData.group, userData.accounts, userData.inventory, userData.weight, userData.job,
-    userData.loadout, userData.playerName, userData.coords, userData.metadata)
+    userData.loadout, userData.playerName, userData.coords, userData.metadata, Config.DoubleJob.enable == true and userData[Config.DoubleJob.name] or nil)
   ESX.Players[playerId] = xPlayer
   Core.playersByIdentifier[identifier] = xPlayer
 
@@ -317,6 +358,7 @@ function loadESXPlayer(identifier, playerId, isNew)
       identifier = xPlayer.getIdentifier(),
       inventory = xPlayer.getInventory(),
       job = xPlayer.getJob(),
+      [Config.DoubleJob.name] = Config.DoubleJob.enable == true and xPlayer[Config.DoubleJob.get]() or nil,
       loadout = xPlayer.getLoadout(),
       maxWeight = xPlayer.getMaxWeight(),
       money = xPlayer.getMoney(),
@@ -597,7 +639,7 @@ end
 ESX.RegisterServerCallback('esx:getPlayerData', function(source, cb)
   local xPlayer = ESX.GetPlayerFromId(source)
 
-  cb({identifier = xPlayer.identifier, accounts = xPlayer.getAccounts(), inventory = xPlayer.getInventory(), job = xPlayer.getJob(),
+  cb({identifier = xPlayer.identifier, accounts = xPlayer.getAccounts(), inventory = xPlayer.getInventory(), job = xPlayer.getJob(), [Config.DoubleJob.name] = Config.DoubleJob.enable and xPlayer[Config.DoubleJob.get] or nil,
       loadout = xPlayer.getLoadout(), money = xPlayer.getMoney(), position = xPlayer.getCoords(true), metadata = xPlayer.getMeta()})
 end)
 
@@ -612,7 +654,7 @@ end)
 ESX.RegisterServerCallback('esx:getOtherPlayerData', function(source, cb, target)
   local xPlayer = ESX.GetPlayerFromId(target)
 
-  cb({identifier = xPlayer.identifier, accounts = xPlayer.getAccounts(), inventory = xPlayer.getInventory(), job = xPlayer.getJob(),
+  cb({identifier = xPlayer.identifier, accounts = xPlayer.getAccounts(), inventory = xPlayer.getInventory(), job = xPlayer.getJob(), [Config.DoubleJob.name] = Config.DoubleJob.enable and xPlayer[Config.DoubleJob.get] or nil,
       loadout = xPlayer.getLoadout(), money = xPlayer.getMoney(), position = xPlayer.getCoords(true), metadata = xPlayer.getMeta()})
 end)
 
@@ -661,7 +703,7 @@ if Config.OxInventory then
           end
           ReallyNewPlayer[_source] = nil
         else
-          xPlayer.kick("Ce joueur a jouer un event manuellement (cheater)")
+          xPlayer.kick(Config.translate[1])
         end
       end
     end)
