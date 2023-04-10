@@ -30,6 +30,9 @@ AddEventHandler('esx:setPlayerData', function(key, value)
 	if key == 'job' then
 		key = 'groups'
 		value = { [value.name] = value.grade }
+	elseif ESX.GetConfig().DoubleJob.enable and key == ESX.GetConfig().DoubleJob.name then
+		key = 'groups'
+		value = { [value.name] = value.grade }
 	end
 
 	PlayerData[key] = value
