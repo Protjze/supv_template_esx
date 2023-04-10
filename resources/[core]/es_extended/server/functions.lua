@@ -153,15 +153,15 @@ if Config.DoubleJob.enable then
     local factions = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list))
 
     for _,v in ipairs(factions) do
-      Faction[v.name] = v
+      Factions[v.name] = v
       Factions[v.name].grades = {}
     end
 
     local factionGrades = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list_grade))
 
     for _,v in ipairs(factionGrades) do
-      if Factions[v[Config.DoubleJob.database.users_dj_name]] then
-        Factions[v[Config.DoubleJob.database.users_dj_name]].grades[tostring(v.grade)] = v
+      if Factions[v[Config.DoubleJob.database.list_grade_name]] then
+        Factions[v[Config.DoubleJob.database.list_grade_name]].grades[tostring(v.grade)] = v
       else
         print(('[^3WARNING^7] Ignoring %s grades for ^5"%s"^0 due to missing %s'):format(Config.DoubleJob.name, v[Config.DoubleJob.database.users_dj_name], Config.DoubleJob.name))
       end

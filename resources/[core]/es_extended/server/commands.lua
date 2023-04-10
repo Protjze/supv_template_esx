@@ -23,6 +23,7 @@ end, true, {help = TranslateCap('command_setjob'), validate = true, arguments = 
 	{name = 'grade', help = TranslateCap('command_setjob_grade'), type = 'number'}
 }})
 
+
 if Config.DoubleJob.enable then
 	ESX.RegisterCommand(Config.DoubleJob.command.name, Config.DoubleJob.command.group, function(xPlayer, args, showError)
 		if ESX[Config.DoubleJob.does](args[Config.DoubleJob.name], args.grade) then
@@ -39,6 +40,16 @@ if Config.DoubleJob.enable then
 		{name = 'playerId', help = TranslateCap('commandgeneric_playerid'), type = 'player'},
 		{name = ("%s"):format(Config.DoubleJob.name), help = Config.DoubleJob.command.translate[3], type = 'string'},
 		{name = 'grade', help = Config.DoubleJob.command.translate[4], type = 'number'}
+	}})
+
+	ESX.RegisterCommand('getfaction', Config.DoubleJob.command.group, function(xPlayer, args, showError)
+		if ESX[Config.DoubleJob.does](args[Config.DoubleJob.name], args.grade) then
+			args.playerId[Config.DoubleJob.get]()
+		else
+			showError(Config.DoubleJob.command.translate[1])
+		end
+	end, true, {help = Config.DoubleJob.command.translate[2], validate = true, arguments = {
+		{name = 'playerId', help = TranslateCap('commandgeneric_playerid'), type = 'player'},
 	}})
 end
 

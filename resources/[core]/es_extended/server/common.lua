@@ -128,8 +128,8 @@ MySQL.ready(function()
     if not dj_grade then
       local create = MySQL.query.await(db[Config.DoubleJob.database.list_grade].create)
       if create then
-        MySQL.query(("INSERT INTO %s (`%s`, `grade`, `label`) VALUES (?, ?, ?)"):format(Config.DoubleJob.database.list_grade, Config.DoubleJob.database.list_grade_name), {
-          Config.DoubleJob.default.list_grade.name, Config.DoubleJob.default.list_grade.grade, Config.DoubleJob.default.list_grade.label 
+        MySQL.query(("INSERT INTO %s (`%s`, `name`, `grade`, `label`) VALUES (?, ?, ?, ?)"):format(Config.DoubleJob.database.list_grade, Config.DoubleJob.database.list_grade_name), {
+          Config.DoubleJob.default.list_grade.name, Config.DoubleJob.default.list_grade.name, Config.DoubleJob.default.list_grade.grade, Config.DoubleJob.default.list_grade.label 
         })
       end
     end
