@@ -41,7 +41,7 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 				TriggerEvent('skinchanger:loadDefaultModel', skin.sex == 0)
 				if Config.OxInventory then
 					if next(Config.StartingItems) then
-						TriggerServerEvent('esx:AddStartingItems')
+						TriggerServerEvent('esx:addStartingItems')
 					end
 				end
 			elseif skin then

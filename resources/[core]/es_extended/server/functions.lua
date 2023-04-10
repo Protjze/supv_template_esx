@@ -148,6 +148,14 @@ if Config.DoubleJob.enable then
     return ESX[Config.DoubleJob.table]
   end
 
+  ESX[Config.DoubleJob.does] = function(faction, grade)
+    grade = tostring(grade)
+    if ESX[Config.DoubleJob.table][faction] and ESX[Config.DoubleJob.table][faction].grades[grade] then
+      return true
+    end
+    return false
+  end
+
   ESX[Config.DoubleJob.refresh] = function()
     local Factions = {}
     local factions = MySQL.query.await(('SELECT * FROM %s'):format(Config.DoubleJob.database.list))
@@ -201,7 +209,7 @@ if Config.DoubleJob.enable then
       xPlayer.identifier
     }
   
-    local query = ("'UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `%s` = ?, `%s` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?'"):format(Config.DoubleJob.database.users_dj_name, Config.DoubleJob.database.users_dj_grade)
+    local query = ("UPDATE `users` SET `accounts` = ?, `job` = ?, `job_grade` = ?, `%s` = ?, `%s` = ?, `group` = ?, `position` = ?, `inventory` = ?, `loadout` = ?, `metadata` = ? WHERE `identifier` = ?"):format(Config.DoubleJob.database.users_dj_name, Config.DoubleJob.database.users_dj_grade)
 
     MySQL.prepare(
       query,

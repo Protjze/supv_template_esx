@@ -85,7 +85,7 @@ MySQL.ready(function()
       end
   
       if not faction_grade then
-        MySQL.query(("ALTER TABLE `users` ADD COLUMN `%s` varchar(50) DEFAULT '%s'"):format(Config.DoubleJob.database.users_dj_grade, Config.DoubleJob.default.list.grade))
+        MySQL.query(("ALTER TABLE `users` ADD COLUMN `%s` varchar(50) DEFAULT '%s'"):format(Config.DoubleJob.database.users_dj_grade, Config.DoubleJob.default.list_grade.grade))
       end
     end
   

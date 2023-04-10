@@ -163,7 +163,6 @@ function loadESXPlayer(identifier, playerId, isNew)
   if Config.DoubleJob.enable then
     userData[Config.DoubleJob.name] = {}
     local faction, factionGrade, factionObject, gradefObject = result[Config.DoubleJob.database.users_dj_name], tostring(result[Config.DoubleJob.database.users_dj_grade])
-
     if ESX[Config.DoubleJob.does](faction, factionGrade) then
       factionObject, gradefObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table][faction].grades[factionGrade]
     else

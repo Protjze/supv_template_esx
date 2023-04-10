@@ -41,16 +41,6 @@ if Config.DoubleJob.enable then
 		{name = ("%s"):format(Config.DoubleJob.name), help = Config.DoubleJob.command.translate[3], type = 'string'},
 		{name = 'grade', help = Config.DoubleJob.command.translate[4], type = 'number'}
 	}})
-
-	ESX.RegisterCommand('getfaction', Config.DoubleJob.command.group, function(xPlayer, args, showError)
-		if ESX[Config.DoubleJob.does](args[Config.DoubleJob.name], args.grade) then
-			args.playerId[Config.DoubleJob.get]()
-		else
-			showError(Config.DoubleJob.command.translate[1])
-		end
-	end, true, {help = Config.DoubleJob.command.translate[2], validate = true, arguments = {
-		{name = 'playerId', help = TranslateCap('commandgeneric_playerid'), type = 'player'},
-	}})
 end
 
 local upgrades = Config.SpawnVehMaxUpgrades and
@@ -267,9 +257,12 @@ ESX.RegisterCommand('job', {"user", "admin"}, function(xPlayer, args, showError)
 end, true)
 
 ESX.RegisterCommand('info', {"user", "admin"}, function(xPlayer, args, showError)
-	local job = xPlayer.getJob().name
-	local jobgrade = xPlayer.getJob().grade_name
-	print("^2ID : ^5"..xPlayer.source.." ^0| ^2Name:^5"..xPlayer.getName().." ^0 | ^2Group:^5"..xPlayer.getGroup().."^0 | ^2Job:^5".. job.."^0")
+	local job, faction = xPlayer.getJob(), Config.DoubleJob.enable and xPlayer[Config.DoubleJob.get]() or false
+	local message = ("^2ID : ^5%s ^0| ^2Name:^5 %s ^0| ^2Group:^5 %s^0 | ^2Job:^5 %s^0/^5%s^0"):format(xPlayer.source, xPlayer.getName(), xPlayer.getGroup(), job.label, job.grade_label)
+	if faction then
+		message = message..(" | ^2%s:^5 %s^0/^5%s"):format(Config.DoubleJob.label, faction.label, faction.grade_label)
+	end
+	print(message)
 end, true)
 
 ESX.RegisterCommand('coords', "admin", function(xPlayer, args, showError)
