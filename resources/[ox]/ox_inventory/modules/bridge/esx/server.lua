@@ -32,18 +32,20 @@ SetTimeout(500, function()
 	end
 end)
 
-while not ESX do
-	Wait(0)
-end
+CreateThread(function()
+	while not ESX do
+		Wait(0)
+	end
 
-if ESX.GetConfig().DoubleJob.enable then
-	AddEventHandler(ESX.GetConfig().DoubleJob.event, function(source, faction, lastFaction)
-		local inventory = Inventory(source)
-		if not inventory then return end
-		inventory.player.groups[lastFaction.name] = nil
-		inventory.player.groups[faction.name] = faction.grade
-	end)
-end
+	if ESX.GetConfig().DoubleJob.enable then
+		AddEventHandler(ESX.GetConfig().DoubleJob.event, function(source, faction, lastFaction)
+			local inventory = Inventory(source)
+			if not inventory then return end
+			inventory.player.groups[lastFaction.name] = nil
+			inventory.player.groups[faction.name] = faction.grade
+		end)
+	end
+end)
 
 -- Accounts that need to be synced with physical items
 server.accounts = {

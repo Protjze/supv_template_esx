@@ -5,6 +5,7 @@ local ESX = setmetatable({}, {
 		local obj = exports.es_extended:getSharedObject()
 		self.SetPlayerData = obj.SetPlayerData
 		self.PlayerLoaded = obj.PlayerLoaded
+		self.config = obj.GetConfig()
 		return self[index]
 	end
 })
@@ -30,7 +31,7 @@ AddEventHandler('esx:setPlayerData', function(key, value)
 	if key == 'job' then
 		key = 'groups'
 		value = { [value.name] = value.grade }
-	elseif ESX.GetConfig().DoubleJob.enable and key == ESX.GetConfig().DoubleJob.name then
+	elseif ESX.config.DoubleJob.enable and key == ESX.config.DoubleJob.name then
 		key = 'groups'
 		value = { [value.name] = value.grade }
 	end

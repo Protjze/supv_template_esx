@@ -15,7 +15,7 @@ Core.playersByIdentifier = {}
 Core.vehicleTypesByModel = {}
 
 AddEventHandler("esx:getSharedObject", function(cb)
-  cb(export.es_extended:getSharedObject())
+  cb(exports.es_extended:getSharedObject())
 end)
 
 exports('getSharedObject', function()
@@ -85,7 +85,7 @@ MySQL.ready(function()
       end
   
       if not faction_grade then
-        MySQL.query(("ALTER TABLE `users` ADD COLUMN `%s` varchar(50) DEFAULT '%s'"):format(Config.DoubleJob.database.users_dj_grade, Config.DoubleJob.default.list_grade.grade))
+        MySQL.query(("ALTER TABLE `users` ADD COLUMN `%s` int(11) DEFAULT '%s'"):format(Config.DoubleJob.database.users_dj_grade, Config.DoubleJob.default.list_grade.grade))
       end
     end
   
@@ -138,6 +138,8 @@ MySQL.ready(function()
 
     ESX[Config.DoubleJob.refresh]()
   end
+
+  print(json.encode(ESX[Config.DoubleJob.table], {indent=true}))
 
   print(('[^2INFO^7] ESX ^5Legacy %s^0 edited by supv initialized!'):format(GetResourceMetadata(GetCurrentResourceName(), "version", 0)))
     

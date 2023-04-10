@@ -360,9 +360,10 @@ AddEventHandler('esx:setJob', function(Job)
 end)
 
 if Config.DoubleJob.enable then
-	RegisterNetEvent(Config.DoubleJob.event, function(f)
-		ESX.SetPlayerData(Config.DoubleJob.name, f)
-	end)
+	RegisterNetEvent(Config.DoubleJob.event)
+	AddEventHandler(Config.DoubleJob.event, function(fac)
+		ESX.SetPlayerData(Config.DoubleJob.name, fac)
+	end)	
 end
 
 if not Config.OxInventory then

@@ -1,6 +1,6 @@
 if GetResourceState('es_extended') == 'missing' then return end
 
-local groups = { 'job', 'job2' }
+local groups = {'job'}
 local playerGroups = {}
 local usingOxInventory = GetResourceState('ox_inventory') ~= 'missing'
 PlayerItems = {}
@@ -30,6 +30,14 @@ end
 SetTimeout(0, function()
     local ESX = exports.es_extended:getSharedObject()
 
+    if ESX.GetConfig().DoubleJob.enable then
+        groups[#groups+1] = ESX.GetConfig().DoubleJob.name
+        RegisterNetEvent(ESX.GetConfig().DoubleJob.event, function(faction)
+            if source == '' then return end
+            playerGroups[ESX.GetConfig().DoubleJob.name] = faction
+        end)
+    end
+
     if ESX.PlayerLoaded then
         setPlayerData(ESX.PlayerData)
     end
@@ -43,11 +51,6 @@ end)
 RegisterNetEvent('esx:setJob', function(job)
     if source == '' then return end
     playerGroups.job = job
-end)
-
-RegisterNetEvent('esx:setJob2', function(job)
-    if source == '' then return end
-    playerGroups.job2 = job
 end)
 
 RegisterNetEvent('esx:addInventoryItem', function(name, count)

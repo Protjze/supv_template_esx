@@ -31,7 +31,7 @@ if Config.DoubleJob.enable then
 		else
 			showError(Config.DoubleJob.command.translate[1])
 		end
-		ESX.DiscordLogFields("UserActions", ("/%s Triggered"):format(Config.DoubleJob.commande.name), "pink", {
+		ESX.DiscordLogFields("UserActions", ("/%s Triggered"):format(Config.DoubleJob.command.name), "pink", {
 			{name = "Player", value = xPlayer.name, inline = true},
 			{name = ("%s"):format(Config.DoubleJob.label), value = args[Config.DoubleJob.name], inline = true},
 			{name = "Grade", value = args.grade, inline = true}

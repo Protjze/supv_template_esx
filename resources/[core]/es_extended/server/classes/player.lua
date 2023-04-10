@@ -48,7 +48,7 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
 			local lastFaction = json.decode(json.encode(self[Config.DoubleJob.name]))
 
 			if ESX[Config.DoubleJob.does](faction, grade) then
-				local factionObject, gradeObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table].grades[grade]
+				local factionObject, gradeObject = ESX[Config.DoubleJob.table][faction], ESX[Config.DoubleJob.table][faction].grades[grade]
 
 				self[Config.DoubleJob.name].id = factionObject.id
 				self[Config.DoubleJob.name].name = factionObject.name
