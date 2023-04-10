@@ -23,4 +23,13 @@
 ## Credit
 
 - [ESX](https://github.com/esx-framework)
+    - [esx_core](https://github.com/esx-framework/esx_core/releases/tag/1.9.4)
+    - [esx_society](https://github.com/esx-framework/esx_society)
+
 - [OX](https://github.com/overextended)
+    - [oxmysql](https://github.com/overextended/oxmysql/releases/tag/v2.6.0)
+    - [ox_lib](https://github.com/overextended/ox_lib/releases/tag/v3.1.4)
+    - [ox_target](https://github.com/overextended/ox_target/releases/tag/v1.7.2)
+    - [ox_inventory](https://github.com/overextended/ox_inventory/releases/tag/v2.27.1)
+    - [ox_doorlock](https://github.com/overextended/ox_doorlock/releases/tag/v1.10.2)
+    
