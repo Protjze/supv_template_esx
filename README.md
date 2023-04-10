@@ -2,16 +2,18 @@
 
 :fr:
 
-- es_extended
+- es_extended (v1.9.4)
     - DoubleJob personnalisable (depuis le config.lua vous pouvez modifier le système, ainsi que le desactiver)
     - StartingItems (vu que la template est prévu pour utiliser les scripts ox, vous pouvez ajouter des items quand le joueur est nouveau)
     - Création des tables + modification de la table user automatique Doublejob (pas besoin d'insert un sql pour ce qui est du doublejob tout ce fait auto par rapport au config dans es-extended)
     - L'appel de l'objet ESX via Trigger de nouveau remit (mais déconseiller d'utiliser ceci)
-- esx_society
+- esx_society (v1.9.1)
     - Ajout du doublejob plus tout les fonctionnalité prévu par rapport au config de votre DoubleJob dans es-extended
-- ox_inventory
+- ox_inventory (v2.27.1)
     - Ajout du doublejob plus tout les fonctionnalité prévu par rapport au config de votre DoubleJob dans es-extended
-- ox_target
+- ox_target (v1.7.2)
+    - Ajout du doublejob plus tout les fonctionnalité prévu par rapport au config de votre DoubleJob dans es-extended
+- ox_doorlock (v1.10.2)
     - Ajout du doublejob plus tout les fonctionnalité prévu par rapport au config de votre DoubleJob dans es-extended
 
 :uk:
