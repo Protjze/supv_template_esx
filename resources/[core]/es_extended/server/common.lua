@@ -139,8 +139,6 @@ MySQL.ready(function()
     ESX[Config.DoubleJob.refresh]()
   end
 
-  print(json.encode(ESX[Config.DoubleJob.table], {indent=true}))
-
   print(('[^2INFO^7] ESX ^5Legacy %s^0 edited by supv initialized!'):format(GetResourceMetadata(GetCurrentResourceName(), "version", 0)))
     
   StartDBSync()
