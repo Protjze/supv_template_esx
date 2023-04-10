@@ -13,7 +13,7 @@
 - ox_target
     - Ajout du doublejob plus tout les fonctionnalité prévu par rapport au config de votre DoubleJob dans es-extended
 
-:en:
+:uk:
 
 - soon
 
