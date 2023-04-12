@@ -2,11 +2,13 @@ local resourceName = 'es_extended'
 
 if not GetResourceState(resourceName):find('start') then return end
 
+local dj
+
 SetTimeout(0, function()
     local ESX = exports[resourceName]:getSharedObject()
-
+    
     GetPlayer = ESX.GetPlayerFromId
-
+    if not dj and ESX.GetConfig().DoubleJob.enable then dj = ESX.GetConfig().DoubleJob end
     if not ESX.GetConfig().OxInventory then
         function RemoveItem(playerId, item)
             local player = GetPlayer(playerId)
@@ -39,7 +41,6 @@ end
 
 function IsPlayerInGroup(player, filter)
     local type = type(filter)
-    local dj = ESX.GetConfig().DoubleJob.enable and ESX.GetConfig().DoubleJob or nil
 
     if type == 'string' then
         if player.job.name == filter then
