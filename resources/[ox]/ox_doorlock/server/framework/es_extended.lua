@@ -44,26 +44,26 @@ function IsPlayerInGroup(player, filter)
     if type == 'string' then
         if player.job.name == filter then
             return player.job.name, player.job.grade
-        elseif db and player[db.name].name == filter  then
-            return player[db.name].name, player[db.name].grade
+        elseif dj and player[dj.name].name == filter  then
+            return player[dj.name].name, player[dj.name].grade
         end
     else
         local tabletype = table.type(filter)
 
         if tabletype == 'hash' then
-            local grade, gradef = filter[player.job.name], db and filter[player[db.name].name] or nil
+            local grade, gradef = filter[player.job.name], dj and filter[player[dj.name].name] or nil
 
             if grade and grade <= player.job.grade then
                 return player.job.name, player.job.grade
-            elseif gradef and gradef <= player[db.name].grade
-                return player[db.name].name, player[db.name].grade
+            elseif gradef and gradef <= player[dj.name].grade
+                return player[dj.name].name, player[dj.name].grade
             end
         elseif tabletype == 'array' then
             for i = 1, #filter do
                 if player.job.name == filter[i] then
                     return player.job.name, player.job.grade
-                elseif db and player[db.name].name == filter[i] then
-                    return player[db.name].name, player[db.name].grade
+                elseif dj and player[dj.name].name == filter[i] then
+                    return player[dj.name].name, player[dj.name].grade
                 end
             end
         end
