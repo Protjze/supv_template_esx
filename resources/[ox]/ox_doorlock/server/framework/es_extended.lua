@@ -55,7 +55,7 @@ function IsPlayerInGroup(player, filter)
 
             if grade and grade <= player.job.grade then
                 return player.job.name, player.job.grade
-            elseif gradef and gradef <= player[dj.name].grade
+            elseif gradef and gradef <= player[dj.name].grade then
                 return player[dj.name].name, player[dj.name].grade
             end
         elseif tabletype == 'array' then
