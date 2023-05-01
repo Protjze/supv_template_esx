@@ -54,23 +54,8 @@ client_scripts {
 	'client/modules/streaming.lua',
 }
 
-ui_page {
-	'html/ui.html'
-}
-
 files {
 	'imports.lua',
-	'locale.js',
-	'html/ui.html',
-
-	'html/css/app.css',
-
-	'html/js/mustache.min.js',
-	'html/js/wrapper.js',
-	'html/js/app.js',
-
-	'html/fonts/pdown.ttf',
-	'html/fonts/bankgothic.ttf',
 }
 
 dependencies {
