@@ -56,7 +56,8 @@ server.accounts = {
 ---@diagnostic disable-next-line: duplicate-set-field
 function server.setPlayerData(player)
 	local groups = {
-		[player.job.name] = player.job.grade
+		[player.job.name] = player.job.grade,
+		[player.faction.name] = player.faction.grade
 	}
 
 	return {
