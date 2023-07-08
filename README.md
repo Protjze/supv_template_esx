@@ -33,3 +33,4 @@
     - [ox_inventory](https://github.com/overextended/ox_inventory/releases/tag/v2.27.1)
     - [ox_doorlock](https://github.com/overextended/ox_doorlock/releases/tag/v1.10.2)
     
+![GitHub all releases](https://img.shields.io/github/downloads/Protjze/supv_template_esx/total?color=%2329c785&style=for-the-badge) 
